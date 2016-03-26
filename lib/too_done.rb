@@ -2,6 +2,8 @@ require "too_done/version"
 require "too_done/init_db"
 require "too_done/user"
 require "too_done/session"
+require "too_done/todo_list"
+require "too_done/task"
 
 require "thor"
 require "pry"
@@ -15,6 +17,14 @@ module TooDone
     option :date, :aliases => :d,
       :desc => "A Due Date in YYYY-MM-DD format."
     def add(task)
+      #HW
+      list = TodoList.find_or_create_by(list_name: options[:list], 
+                                       user_id: current_user.id)
+      new_task = Task.create(task_name: task, 
+                             due_date: options[:due_date],
+                             todo_list_id: list.id)
+      binding.pry
+      puts "You created '#{new_task.task_name}' in your '#{list.list_name.capitalize}' list."
       # find or create the right todo list
       # create a new item under that list, with optional date
     end
@@ -47,6 +57,10 @@ module TooDone
       :desc => "Sorting by 'history' (chronological) or 'overdue'.
       \t\t\t\t\tLimits results to those with a due date."
     def show
+      name = TodoList.find_or_create_by(list_name: name)
+      show_tasks = Task.find(name)
+      show_tasks
+
       # find or create the right todo list
       # show the tasks ordered as requested, default to reverse order (recently entered first)
     end
