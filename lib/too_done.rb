@@ -17,22 +17,34 @@ module TooDone
     option :date, :aliases => :d,
       :desc => "A Due Date in YYYY-MM-DD format."
     def add(task)
-      #HW
       list = TodoList.find_or_create_by(list_name: options[:list], 
                                        user_id: current_user.id)
       new_task = Task.create(task_name: task, 
                              due_date: options[:due_date],
                              todo_list_id: list.id)
-      binding.pry
       puts "You created '#{new_task.task_name}' in your '#{list.list_name.capitalize}' list."
-      # find or create the right todo list
-      # create a new item under that list, with optional date
     end
 
     desc "edit", "Edit a task from a todo list."
     option :list, :aliases => :l, :default => "*default*",
       :desc => "The todo list whose tasks will be edited."
     def edit
+      list = TodoList.find_by(list_name: list)
+      unless list
+        puts "#{options[:list]} is not a valid list for #{current_user.name}"
+        exit
+      end
+      tasks = Task.where(list_id: list.id)
+
+      unless task.count > 0
+        puts "No tasks found."
+        exit
+      end
+      tasks.each do
+        puts "#{tasks.id}, #{tasks.name}, #{tasks.item}, #{tasks.due_date}, #{tasks.completed}, #{tasks.list_id}, \n"
+      end
+      
+
       # find the right todo list
       # BAIL if it doesn't exist and have tasks
       # display the tasks and prompt for which one to edit
