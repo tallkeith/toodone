@@ -57,9 +57,10 @@ module TooDone
       :desc => "Sorting by 'history' (chronological) or 'overdue'.
       \t\t\t\t\tLimits results to those with a due date."
     def show
-      name = TodoList.find_or_create_by(list_name: name)
-      show_tasks = Task.find(name)
-      show_tasks
+      list = TodoList.find_or_create_by(list_name: options[:list], 
+                                       user_id: current_user.id)
+      show_tasks = Task.where(todo_list_id: list.id)
+      puts list.show_tasks.task_name
 
       # find or create the right todo list
       # show the tasks ordered as requested, default to reverse order (recently entered first)
