@@ -38,14 +38,17 @@ module TooDone
         puts "#{options[:list]} is not a valid list for #{current_user.name}"
         exit
       end
+
       tasks = Task.where(list_id: list.id)
       unless task.count > 0
         puts "No tasks found."
         exit
       end
+
       tasks.each do
         puts "#{tasks.id}, #{tasks.name}, #{tasks.item}, #{tasks.due_date}, #{tasks.completed}, #{tasks.list_id}, \n"
       end
+
       puts "Which task would you like to edit? (Input task ID)"
       edit = STDIN.gets.chomp.to_i
       puts "New title: "
@@ -53,9 +56,7 @@ module TooDone
       puts "New Due Date (YYYY-MM-DD): "
       new_due = STDIN.gets.chomp
       task_to_edit = Task.find_by(id: edit)
-      updated_task = task_to_edit.update_attributes(task_name: titel_update, due_date: new_due)
-      updated_task.save
-      
+      updated_task = task_to_edit.update_attributes(task_name: titel_update, due_date: new_due)      
     end
 
     desc "done", "Mark a task as completed."
@@ -66,7 +67,17 @@ module TooDone
       # BAIL if it doesn't exist and have tasks
       # display the tasks and prompt for which one(s?) to mark done
 
-     
+      list = current_user.lists.find_by(list_name: options[:list])
+      unless list && list.tasks.count >= 0
+        puts "List has no tasksor does not exist"
+        exit
+      end
+
+      Task.where(list_id: list.id).each {|x| puts "#{x.id}: #{x.task_name}"}
+      puts "Which task number have you completed?"
+      choice = STDIN.gets.chomp.to_i
+      task = Task.find(choice)
+      done = task.update_attributes(completed: true)
     end
 
     desc "show", "Show the tasks on a todo list in reverse order."
@@ -98,6 +109,15 @@ module TooDone
       # find the matching user or list
       # BAIL if the user or list couldn't be found
       # delete them (and any dependents)
+
+      unless option[:todo_list] && option[:user]
+        if user = User.find_by(name: options[:user])
+            user.destroy.all
+        else list = TodoLists.where(list_name: options[:todo_list])
+            list.destory.all
+        end
+      exit
+      end
     end
 
     desc "switch USER", "Switch session to manage USER's todo lists."
@@ -113,5 +133,4 @@ module TooDone
   end
 end
 
-# binding.pry
 TooDone::App.start(ARGV)
