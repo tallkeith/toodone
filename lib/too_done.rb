@@ -29,13 +29,16 @@ module TooDone
     option :list, :aliases => :l, :default => "*default*",
       :desc => "The todo list whose tasks will be edited."
     def edit
+      # find the right todo list
+      # BAIL if it doesn't exist and have tasks
+      # display the tasks and prompt for which one to edit
+      # allow the user to change the title, due date
       list = TodoList.find_by(list_name: list)
       unless list
         puts "#{options[:list]} is not a valid list for #{current_user.name}"
         exit
       end
       tasks = Task.where(list_id: list.id)
-
       unless task.count > 0
         puts "No tasks found."
         exit
@@ -43,12 +46,16 @@ module TooDone
       tasks.each do
         puts "#{tasks.id}, #{tasks.name}, #{tasks.item}, #{tasks.due_date}, #{tasks.completed}, #{tasks.list_id}, \n"
       end
+      puts "Which task would you like to edit? (Input task ID)"
+      edit = STDIN.gets.chomp.to_i
+      puts "New title: "
+      title_update = STDIN.gets.chomp
+      puts "New Due Date (YYYY-MM-DD): "
+      new_due = STDIN.gets.chomp
+      task_to_edit = Task.find_by(id: edit)
+      updated_task = task_to_edit.update_attributes(task_name: titel_update, due_date: new_due)
+      updated_task.save
       
-
-      # find the right todo list
-      # BAIL if it doesn't exist and have tasks
-      # display the tasks and prompt for which one to edit
-      # allow the user to change the title, due date
     end
 
     desc "done", "Mark a task as completed."
@@ -58,6 +65,8 @@ module TooDone
       # find the right todo list
       # BAIL if it doesn't exist and have tasks
       # display the tasks and prompt for which one(s?) to mark done
+
+     
     end
 
     desc "show", "Show the tasks on a todo list in reverse order."
