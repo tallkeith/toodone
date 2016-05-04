@@ -56,7 +56,7 @@ module TooDone
       puts "New Due Date (YYYY-MM-DD): "
       new_due = STDIN.gets.chomp
       task_to_edit = Task.find_by(id: edit)
-      updated_task = task_to_edit.update_attributes(task_name: titel_update, due_date: new_due)      
+      updated_task = task_to_edit.update_attributes(task_name: title_update, due_date: new_due)      
     end
 
     desc "done", "Mark a task as completed."
@@ -69,7 +69,7 @@ module TooDone
 
       list = current_user.lists.find_by(list_name: options[:list])
       unless list && list.tasks.count >= 0
-        puts "List has no tasksor does not exist"
+        puts "List has no tasks or does not exist"
         exit
       end
 
